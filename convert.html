@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js" integrity="sha512-WiGQZv8WpmQVRUFXZywo7pHIO0G/o3RyiAJZj8YXNN4AV7ReR1RYWVmZJ6y3H06blPcjJmG/sBpOVZjTSFFlzQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+	<input type="file" accept="audio/*">
+	<script src="https://cdn.jsdelivr.net/gh/hi098123/libsndfile-wasm@1.2.2/sndfile-convert.js"></script>
+	<script>
+		document.querySelector('input[type="file"]').addEventListener('change', function(event) {
+			var files = event.target.files || document.querySelector('input[type="file"]').files;
+			
+			for (var i = 0; i < files.length; i++) {
+				(function(file) {
+					var reader = new FileReader();
+
+					reader.onload = function(e){
+						console.log([file.name, this.result])
+						Module.FS.writeFile(file.name, new Uint8Array(this.result));
+						Module.callMain([file.name, '1.ogg'])
+						download(Module.FS.readFile('1.ogg'), '1.ogg')
+						Module.callMain([file.name, '1.mp3'])
+						download(Module.FS.readFile('1.mp3'), '1.mp3')
+						Module.callMain([file.name, '1.wav'])
+						download(Module.FS.readFile('1.wav'), '1.wav')
+						Module.callMain([file.name, '1.flac'])
+						download(Module.FS.readFile('1.flac'), '1.flac')
+					}
+					reader.onerror  = function(e) {
+						console.log([e, file.size])
+						if(file.size>1000000000){
+							//파일크기가 너무 큽니다.
+						}
+					}
+					reader.readAsArrayBuffer(file);
+				})(files[i]);
+			}
+		});
+	</script>
+</body>
+</html>
